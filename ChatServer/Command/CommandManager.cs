@@ -12,7 +12,7 @@ namespace ChatServer.Command
     {
 
         private static CommandManager _instance;
-        private Dictionary<string, ServerCommand> _commands = new Dictionary<string, ServerCommand>();
+        public Dictionary<string, ServerCommand> _commands { get; private set; } = new Dictionary<string, ServerCommand>();
         
         private CommandManager() {}
 

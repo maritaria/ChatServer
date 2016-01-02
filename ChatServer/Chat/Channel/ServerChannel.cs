@@ -14,6 +14,8 @@ namespace ChatServer.Chat.Channel
         public string _name { get; private set; }
         public bool _locked { get; set; } = false;
         public bool _isLobbyChannel { get; private set; } = false;
+
+        public List<ChannelMessage> _messages { get; private set; } = new List<ChannelMessage>();
         
         public ServerChannel(string name, bool locked, bool isLobbyChannel)
         {
@@ -31,6 +33,21 @@ namespace ChatServer.Chat.Channel
                     client.SendMessage(message);
                 }
             }
+        }
+
+        public void LogMessage(ServerClient client, string message)
+        {
+            if (!_isLobbyChannel)
+            {
+                return;
+            }
+
+            if (_messages.Count == 10)
+            {
+                _messages.RemoveAt(0);
+            }
+
+            _messages.Add(new ChannelMessage(client._nick, message));
         }
 
     }

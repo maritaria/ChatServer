@@ -36,6 +36,11 @@ namespace ChatServer.Chat
                     }
                 }
             }
+
+            if (_message.StartsWith(" -"))
+            {
+                _message = _message.Substring(1);
+            }
         }
 
         public override string ToString()

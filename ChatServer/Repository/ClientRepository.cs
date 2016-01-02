@@ -59,6 +59,11 @@ namespace ChatServer.Repository
 
         public ServerClient GetClient(string nickname)
         {
+            if (nickname.Equals("%"))
+            {
+                return null;
+            }
+
             foreach (ServerClient client in _clients)
             {
                 if (client._nick.Equals(nickname))
@@ -75,9 +80,14 @@ namespace ChatServer.Repository
             return (GetClient(tcpClient) != null);
         }
 
-        public bool Has(string nick)
+        public bool Has(string nickname)
         {
-            return (GetClient(nick) != null);
+            if (nickname.Equals("%"))
+            {
+                return true;
+            }
+
+            return (GetClient(nickname) != null);
         }
 
         public List<ServerClient> GetAllClients()

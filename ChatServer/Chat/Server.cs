@@ -27,42 +27,78 @@ namespace ChatServer.Chat
 
         public Server()
         {
-            initialise();
+            Initialise();
         }
 
         public Server(int port)
         {
             this._port = port;
-            initialise();
+            Initialise();
         }
 
-        public void initialise()
+        public void Status()
+        {
+            while (true)
+            {
+                Console.Clear();
+
+                // Credits
+                Console.WriteLine("###################################");
+                Console.WriteLine("#            Chat Server          #");
+                Console.WriteLine("#            by SysVoid           #");
+                Console.WriteLine("###################################");
+
+                // Server data and port
+                Console.WriteLine($">> Port: {_port}");
+                Console.WriteLine($">> Connected Clients: {_clientRepository.GetAllClients().Count}");
+                Console.WriteLine($">> Channels: {ChannelManager.GetInstance()._channels.Count}");
+                Console.WriteLine($">> Commands Loaded: {CommandManager.GetInstance()._commands.Count}");
+
+                if (ChannelManager.GetInstance().GetLobby() != null)
+                {
+                    Console.WriteLine($">> Lobby: {ChannelManager.GetInstance().GetLobby()._name}");
+                }
+
+                // Last 10 messages (just the lobby)
+                Console.WriteLine("");
+                Console.WriteLine("Displaying last 10 lobby messages.");
+                Console.WriteLine("==================================");
+
+                foreach (ChannelMessage message in ChannelManager.GetInstance().GetLobby()._messages)
+                {
+                    Console.WriteLine($"<{message._nick}> {message._message}");
+                }
+
+                Thread.Sleep(500);
+            }
+        }
+
+        public void Initialise()
         {
             this._clientRepository = ClientRepository.GetInstance();
             this._tcpListener = new TcpListener(IPAddress.Any, _port);
-            this._listeningThread = new Thread(new ThreadStart(listen));
+            this._listeningThread = new Thread(new ThreadStart(Listen));
             this._listeningThread.Start();
-
             Server._instance = this;
+
+            // Show the status thing in console over and over
+            Thread statusThread = new Thread(new ThreadStart(Status));
+            statusThread.Start();
 
             // Register all commands
             new CommandNick();
             new CommandJoin();
             new CommandChannels();
+            new CommandTell();
 
             // Create additional channels
             ChannelManager.GetInstance().CreateChannel("twitch", false);
             ChannelManager.GetInstance().CreateChannel("locked-test", true);
         }
 
-        public void listen()
+        public void Listen()
         {
             this._tcpListener.Start();
-            Console.WriteLine("###################################");
-            Console.WriteLine("#            Chat Server          #");
-            Console.WriteLine("#            by SysVoid           #");
-            Console.WriteLine("###################################");
-            Console.WriteLine($">> Listening on port: {_port}");
 
             while (true)
             {
@@ -70,14 +106,13 @@ namespace ChatServer.Chat
 
                 // % = temporary username
                 ClientRepository.GetInstance().Store(new ServerClient("%", client));
-                Console.WriteLine($"Client {client.Client.RemoteEndPoint} connected!");
 
-                Thread clientThread = new Thread(new ParameterizedThreadStart(handleClientCommunication));
+                Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientCommunication));
                 clientThread.Start(client);
             }
         }
 
-        public void handleClientCommunication(object client)
+        public void HandleClientCommunication(object client)
         {
             TcpClient tcpClient = (TcpClient) client;
 
@@ -120,12 +155,11 @@ namespace ChatServer.Chat
                     break;
                 }
 
-                if (bytesRead == 0)
+                if (bytesRead == 0 || !tcpClient.Connected || tcpClient == null)
                 {
                     // Client disconnected... we don't need them anyway!
                     // *cries in corner*
                     _clientRepository.Remove(tcpClient);
-                    Console.WriteLine($"Client {tcpClient.Client.RemoteEndPoint} disconnected!");
 
                     if (!serverClient._nick.Equals("%"))
                     {
@@ -155,7 +189,7 @@ namespace ChatServer.Chat
                         CommandManager.GetInstance().HandleCommandExecution(serverClient, msg._command, msg._commandArgs);
                     } else
                     {
-                        Console.WriteLine($"[msg] ({serverClient._channel._name}) <{serverClient._nick}> {msg}");
+                        serverClient._channel.LogMessage(serverClient, msg._message);
                         serverClient._channel.BroadcastMessage("<" + serverClient._nick + "> " + msg._message);
                     }
                 }

@@ -23,7 +23,7 @@ namespace ChatServer.Command
         {
             if (args.Count < 1)
             {
-                client.SendMessage("Usage: /join +<channel>");
+                client.SendMessage("Usage: -join +<channel>");
                 return;
             }
 

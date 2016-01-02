@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chat\Channel\ChannelMessage.cs" />
     <Compile Include="Chat\Channel\ServerChannel.cs" />
     <Compile Include="Chat\ChatMessage.cs" />
     <Compile Include="Chat\ServerClient.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="Command\CommandJoin.cs" />
     <Compile Include="Command\CommandManager.cs" />
     <Compile Include="Command\CommandNick.cs" />
+    <Compile Include="Command\CommandTell.cs" />
     <Compile Include="Command\ServerCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

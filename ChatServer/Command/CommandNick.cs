@@ -23,7 +23,7 @@ namespace ChatServer.Command
         {
             if (args.Count < 1)
             {
-                client.SendMessage("Usage: /nick <nickname>");
+                client.SendMessage("Usage: -nick <nickname>");
                 return;
             }
 

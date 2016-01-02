@@ -10,7 +10,7 @@ namespace ChatServer.Chat.Channel
     {
 
         private static ChannelManager _instance;
-        private List<ServerChannel> _channels = new List<ServerChannel>();
+        public List<ServerChannel> _channels { get; private set; } = new List<ServerChannel>();
 
         private ChannelManager() {}
 
